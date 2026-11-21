@@ -20,11 +20,16 @@ jobs:
       - name: Create local.properties for pyramid
         run: echo "" > local.properties
 
-      - name: Setup Python + deps for pyramid
+      - name: Setup Python 3.8 for pyramid
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.8'
+
+      - name: Fix pyramid python path
         run: |
           sed -i '/buildPython.*python.exe/d' pyramid/build.gradle
-          python3 -m pip install --upgrade pip
-          python3 -m pip install lxml ujson pyquery requests jsonpath cachetools pycryptodome beautifulsoup4
+          python -m pip install --upgrade pip
+          python -m pip install lxml ujson pyquery requests jsonpath cachetools pycryptodome beautifulsoup4
 
       - name: Add fallback maven repos
         run: |
