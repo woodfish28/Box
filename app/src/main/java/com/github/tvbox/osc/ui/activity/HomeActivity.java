@@ -151,6 +151,8 @@ public class HomeActivity extends BaseActivity {
             useCacheConfig = bundle.getBoolean("useCache", false);
         }
         initData();
+        // 保来屋定制：启动品牌蒙层（淡入淡出自动消失，不拦操作）
+        com.github.tvbox.osc.util.BrandSplash.show(this);
     }
 
     // takagen99: Added to allow read string

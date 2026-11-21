@@ -117,6 +117,9 @@ public abstract class BaseController extends BaseVideoController implements Gest
     private TextView mSpeedTextHide;
     private LinearLayout mSpeedTop;
 
+    // 保来屋定制：播放器品牌装饰（缓冲 logo + 暂停卡片）
+    private com.github.tvbox.osc.util.BrandPlayerDecor mBrandDecor;
+
     private LinearLayout mDialogVolume;
     private LinearLayout mDialogBrightness;
     private ProgressBar mDialogVolumeProgressBar;
@@ -157,6 +160,9 @@ public abstract class BaseController extends BaseVideoController implements Gest
         mDialogBrightnessProgressBar = findViewWithTag("progressbar_brightness");
         mDialogVideoProgressBar = findViewWithTag("progressbar_video");
         mDialogVideoPauseBar = findViewWithTag("pausebar_video");
+
+        // 保来屋定制：挂品牌装饰到 controller 根（FrameLayout）
+        mBrandDecor = new com.github.tvbox.osc.util.BrandPlayerDecor(this);
     }
 
     @Override
@@ -167,6 +173,11 @@ public abstract class BaseController extends BaseVideoController implements Gest
         int percent = (int) (((double) position / (double) duration) * 100);
         mDialogVideoProgressBar.setProgress(percent);
         mDialogVideoPauseBar.setProgress(percent);
+        // 保来屋定制：缓冲过程中持续刷新品牌视图的百分比
+        if (mBrandDecor != null && mControlWrapper != null
+                && (mCurPlayState == VideoView.STATE_BUFFERING || mCurPlayState == VideoView.STATE_PREPARING)) {
+            mBrandDecor.showBuffer(mControlWrapper.getBufferedPercentage());
+        }
     }
 
     @Override
@@ -183,12 +194,15 @@ public abstract class BaseController extends BaseVideoController implements Gest
                 mLoading.setVisibility(GONE);
                 mLoadingHide.setVisibility(GONE);
                 mSpeedTop.setVisibility(GONE);
+                if (mBrandDecor != null) { mBrandDecor.hideBuffer(); mBrandDecor.hidePause(); }
                 break;
             case VideoView.STATE_PAUSED:
                 mPauseRoot.setVisibility(VISIBLE);
                 mLoading.setVisibility(GONE);
                 mLoadingHide.setVisibility(GONE);
                 mSpeedTop.setVisibility(GONE);
+                // 保来屋定制：暂停显示品牌卡片（盖住原右上角暂停块）
+                if (mBrandDecor != null) mBrandDecor.showPause();
                 break;
             case VideoView.STATE_PREPARED:
             case VideoView.STATE_ERROR:
@@ -196,18 +210,25 @@ public abstract class BaseController extends BaseVideoController implements Gest
                 mLoading.setVisibility(GONE);
                 mLoadingHide.setVisibility(GONE);
                 mSpeedTop.setVisibility(GONE);
+                if (mBrandDecor != null) mBrandDecor.hideBuffer();
                 break;
             case VideoView.STATE_PREPARING:
             case VideoView.STATE_BUFFERING:
-                mLoading.setVisibility(VISIBLE);
-                mLoadingHide.setVisibility(VISIBLE);
-                mSpeedTop.setVisibility(VISIBLE);
+                // 保来屋定制：原生转圈隐藏，用品牌 logo 视图代替
+                mLoading.setVisibility(GONE);
+                mLoadingHide.setVisibility(GONE);
+                mSpeedTop.setVisibility(GONE);
+                if (mBrandDecor != null) {
+                    int pct = mControlWrapper == null ? 0 : mControlWrapper.getBufferedPercentage();
+                    mBrandDecor.showBuffer(pct);
+                }
                 break;
             case VideoView.STATE_PLAYBACK_COMPLETED:
                 mLoading.setVisibility(GONE);
                 mLoadingHide.setVisibility(GONE);
                 mPauseRoot.setVisibility(GONE);
                 mSpeedTop.setVisibility(GONE);
+                if (mBrandDecor != null) { mBrandDecor.hideBuffer(); mBrandDecor.hidePause(); }
                 break;
         }
     }
