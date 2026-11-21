@@ -28,8 +28,8 @@ public final class BrandSplash {
         final View splash = activity.getLayoutInflater().inflate(R.layout.blw_splash_view, null);
         final FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
-        // 加到 decorView 最上层，盖住一切
-        activity.getWindow().getDecorView().addView(splash, lp);
+        // 加到 decorView 最上层，盖住一切（getDecorView 运行时是 ViewGroup，需强转）
+        ((android.view.ViewGroup) activity.getWindow().getDecorView()).addView(splash, lp);
 
         View card = splash.findViewById(R.id.blw_splash_card);
         if (card != null) {
