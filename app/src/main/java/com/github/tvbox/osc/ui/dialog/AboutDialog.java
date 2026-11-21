@@ -17,6 +17,6 @@ public class AboutDialog extends BaseDialog {
         View view = View.inflate(context, R.layout.dialog_about, null);
         setContentView(view);
         // 保来屋定制：免责声明上方填品牌二维码区
-        BrandQRHelper.fill(context, view, 240);
+        BrandQRHelper.fill(context, view);
     }
 }

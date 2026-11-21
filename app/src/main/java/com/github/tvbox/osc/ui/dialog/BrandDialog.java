@@ -18,6 +18,6 @@ public class BrandDialog extends BaseDialog {
         View view = View.inflate(context, R.layout.dialog_brand, null);
         setContentView(view);
         setCanceledOnTouchOutside(true);
-        BrandQRHelper.fill(context, view, 300);
+        BrandQRHelper.fill(context, view);
     }
 }

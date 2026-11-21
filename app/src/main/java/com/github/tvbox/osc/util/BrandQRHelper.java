@@ -9,45 +9,52 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.github.tvbox.osc.R;
-import com.github.tvbox.osc.ui.tv.QRCodeGen;
 
-import me.jessyan.autosize.utils.AutoSizeUtils;
-
-/** 保来屋定制：把 BrandInfo 内容填充到含品牌二维码控件的布局里（AboutDialog / BrandDialog 复用）。 */
+/** 保来屋定制：把 BrandInfo 内容填充到含品牌控件的布局（AboutDialog / BrandDialog 复用）。 */
 public final class BrandQRHelper {
     private BrandQRHelper() {}
 
-    /** qrSizeMm：二维码边长（mm），与布局里 ImageView 尺寸保持一致。 */
-    public static void fill(Context context, View root, int qrSizeMm) {
-        TextView tvTitle = root.findViewById(R.id.tvBrandTitle);
-        ImageView ivQR = root.findViewById(R.id.ivBrandQR);
-        TextView tvSubtitle = root.findViewById(R.id.tvBrandSubtitle);
-        TextView tvWebsite = root.findViewById(R.id.tvBrandWebsite);
-        TextView tvTip = root.findViewById(R.id.tvBrandTip);
+    public static void fill(Context context, View root) {
+        setText(root, R.id.tvBrandTitle, BrandInfo.TITLE);
+        setText(root, R.id.tvBrandSlogan, BrandInfo.SLOGAN);
+        setText(root, R.id.tvBrandSubtitle, BrandInfo.SUBTITLE);
+        setText(root, R.id.tvBrandWebsite, BrandInfo.WEBSITE);
+        setText(root, R.id.tvBrandTip, BrandInfo.TIP);
+        setText(root, R.id.tvQrWechatLabel, BrandInfo.QR_WECHAT_LABEL);
+        setText(root, R.id.tvQrGzhLabel, BrandInfo.QR_GZH_LABEL);
 
-        if (tvTitle != null) tvTitle.setText(BrandInfo.TITLE);
-        if (tvSubtitle != null) tvSubtitle.setText(BrandInfo.SUBTITLE);
-        if (tvWebsite != null) {
-            tvWebsite.setText(TextUtils.isEmpty(BrandInfo.WEBSITE) ? "" : BrandInfo.WEBSITE);
-            tvWebsite.setVisibility(TextUtils.isEmpty(BrandInfo.WEBSITE) ? View.GONE : View.VISIBLE);
-        }
-        if (tvTip != null) {
-            tvTip.setText(TextUtils.isEmpty(BrandInfo.TIP) ? "" : BrandInfo.TIP);
-            tvTip.setVisibility(TextUtils.isEmpty(BrandInfo.TIP) ? View.GONE : View.VISIBLE);
-        }
-        if (ivQR == null) return;
+        setLogo(root, R.id.ivBrandLogo);
 
-        int px = AutoSizeUtils.mm2px(context, qrSizeMm);
-        if (!TextUtils.isEmpty(BrandInfo.QR_IMAGE_URL)) {
+        setQr(context, root, R.id.ivBrandQR,
+                BrandInfo.QR_WECHAT_RES, BrandInfo.QR_WECHAT_URL);
+        setQr(context, root, R.id.ivBrandQR2,
+                BrandInfo.QR_GZH_RES, BrandInfo.QR_GZH_URL);
+    }
+
+    private static void setText(View root, int id, String text) {
+        TextView tv = root.findViewById(id);
+        if (tv != null) tv.setText(TextUtils.isEmpty(text) ? "" : text);
+    }
+
+    private static void setLogo(View root, int id) {
+        ImageView iv = root.findViewById(id);
+        if (iv != null) iv.setImageResource(BrandInfo.LOGO_RES);
+    }
+
+    private static void setQr(Context context, View root, int id, int localRes, String url) {
+        ImageView iv = root.findViewById(id);
+        if (iv == null) return;
+        if (!TextUtils.isEmpty(url)) {
+            // 网络图：换图只换服务器，不重编译；禁缓存保证换图立即生效
             Glide.with(context)
-                    .load(BrandInfo.QR_IMAGE_URL)
+                    .load(url)
                     .diskCacheStrategy(DiskCacheStrategy.NONE)
                     .skipMemoryCache(true)
-                    .placeholder(android.R.drawable.ic_menu_gallery)
-                    .into(ivQR);
+                    .placeholder(localRes)
+                    .error(localRes)
+                    .into(iv);
         } else {
-            String text = TextUtils.isEmpty(BrandInfo.QR_TEXT) ? BrandInfo.WEBSITE : BrandInfo.QR_TEXT;
-            ivQR.setImageBitmap(QRCodeGen.generateBitmap(text, px, px));
+            iv.setImageResource(localRes);
         }
     }
 }
