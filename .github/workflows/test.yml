@@ -17,6 +17,15 @@ jobs:
           distribution: temurin
           java-version: '17'
 
+      - name: Create local.properties for pyramid
+        run: echo "" > local.properties
+
+      - name: Setup Python + deps for pyramid
+        run: |
+          sed -i '/buildPython.*python.exe/d' pyramid/build.gradle
+          python3 -m pip install --upgrade pip
+          python3 -m pip install lxml ujson pyquery requests jsonpath cachetools pycryptodome beautifulsoup4
+
       - name: Add fallback maven repos
         run: |
           if grep -q 'crosswalk' build.gradle; then
