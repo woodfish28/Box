@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@drawable/shape_dialog_bg_main"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:padding="@dimen/vs_30">
+
+        <TextView
+            android:id="@+id/tvBrandTitle"
+            android:layout_width="@dimen/vs_600"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:shadowColor="@color/color_000000_60"
+            android:shadowRadius="3"
+            android:textColor="@color/color_FFFFFF"
+            android:textSize="@dimen/ts_24"
+            android:textStyle="bold"
+            tools:text="扫码关注 · 保来屋" />
+
+        <ImageView
+            android:id="@+id/ivBrandQR"
+            android:layout_width="@dimen/vs_300"
+            android:layout_height="@dimen/vs_300"
+            android:layout_gravity="center"
+            android:layout_marginTop="@dimen/vs_20"
+            android:background="@android:color/white"
+            android:contentDescription="二维码" />
+
+        <TextView
+            android:id="@+id/tvBrandSubtitle"
+            android:layout_width="@dimen/vs_600"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="@dimen/vs_20"
+            android:gravity="center"
+            android:lineSpacingMultiplier="1.4"
+            android:shadowColor="@color/color_000000_60"
+            android:shadowRadius="3"
+            android:textColor="@color/color_FFFFFF"
+            android:textSize="@dimen/ts_24"
+            tools:text="保来屋经纪 · 保险医生余仁哲" />
+
+        <TextView
+            android:id="@+id/tvBrandWebsite"
+            android:layout_width="@dimen/vs_600"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="@dimen/vs_12"
+            android:gravity="center"
+            android:shadowColor="@color/color_000000_60"
+            android:shadowRadius="3"
+            android:textColor="@color/color_FFFFFF"
+            android:textSize="@dimen/ts_22"
+            tools:text="tvbox.woodfish.shop" />
+
+        <TextView
+            android:id="@+id/tvBrandTip"
+            android:layout_width="@dimen/vs_600"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="@dimen/vs_20"
+            android:gravity="center"
+            android:shadowColor="@color/color_000000_60"
+            android:shadowRadius="3"
+            android:textColor="@color/color_FFFFFF"
+            android:textSize="@dimen/ts_20"
+            tools:text="电视端订阅地址已内置，无需手动输入" />
+    </LinearLayout>
+</FrameLayout>

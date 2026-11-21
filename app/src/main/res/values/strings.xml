@@ -271,4 +271,6 @@
 
     <!-- 结束 视频设置 相关配置 -->
 
+    <!-- 保来屋定制 -->
+    <string name="mn_follow">Follow Us / QR Code</string>
 </resources>
