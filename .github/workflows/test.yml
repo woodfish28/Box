@@ -17,26 +17,14 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Create local.properties for pyramid
+      - name: Create local.properties
         run: echo "" > local.properties
-
-      - name: Setup Python 3.8 for pyramid
-        uses: actions/setup-python@v7
-        with:
-          python-version: '3.8'
-
-      - name: Fix pyramid python path
-        run: |
-          sed -i '/buildPython.*python.exe/d' pyramid/build.gradle
-          python -m pip install --upgrade pip
-          python -m pip install lxml ujson pyquery requests jsonpath cachetools pycryptodome beautifulsoup4
 
       - name: Add fallback maven repos
         run: |
           if grep -q 'crosswalk' build.gradle; then
             sed -i "/jitpack.io/a\        maven { url 'https://j4uq.github.io/crosswalk/releases/crosswalk/android/maven2' }" build.gradle
           fi
-          sed -i "/jitpack.io/a\        maven { url 'https://jitpack.io' }" build.gradle || true
 
       - name: Build With Gradle
         run: |
