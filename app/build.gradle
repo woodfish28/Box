@@ -12,7 +12,9 @@ android {
 
     defaultConfig {
         applicationId 'com.github.tvbox.osc.tk'
-        targetSdkVersion 28
+        // 保来屋定制：targetSdk 28→23，老 Android（≤6.0）装包时让 Manifest 解析器走兼容路径，
+        // 修复"安装程序解析失败"
+        targetSdkVersion 23
         versionCode 1
         versionName "1.0.".concat(buildTime())
         multiDexEnabled true
