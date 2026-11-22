@@ -33,7 +33,10 @@ android {
     buildTypes {
         release {
             minifyEnabled true
-
+            // 保来屋定制：此前 release 未配置签名，产出的是未签名 APK，
+            // 任何 Android 设备（尤其 6.0）都会报"解析软件包失败"。
+            // 用 AGP 内置的 debug keystore 签名，兼容老系统且无需管理密钥文件。
+            signingConfig signingConfigs.debug
         }
     }
 

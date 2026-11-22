@@ -2,8 +2,6 @@ name: Build Baolaiwu TVBox
 
 on:
   workflow_dispatch:
-  push:
-    branches: [ main ]
 
 jobs:
   build:
