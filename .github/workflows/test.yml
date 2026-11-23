@@ -29,27 +29,29 @@ jobs:
       - name: Build With Gradle
         run: |
           chmod +x gradlew
-          echo "Starting Gradle build, this may take 5-10 minutes..."
+          echo "=== Starting Gradle build (expect 5-10 min) ==="
           ./gradlew assembleRelease --build-cache --parallel --daemon --warning-mode all > gradle-build.log 2>&1
           GRADLE_EXIT=$?
-          echo "Gradle exit code: $GRADLE_EXIT"
-          echo "Gradle log size: $(wc -c < gradle-build.log 2>/dev/null || echo 0) bytes"
+          echo "=== Gradle exit code: $GRADLE_EXIT ==="
+          echo "=== Gradle log size: $(wc -c < gradle-build.log 2>/dev/null || echo 0) bytes ==="
           if [ $GRADLE_EXIT -eq 0 ]; then
             echo "===== BUILD OK (exit 0) ====="
-            echo "=== APK location check ==="
+            echo "=== APK location ==="
             find app/build/outputs/apk -name "*.apk" -type f -print 2>/dev/null || echo "No APK in expected location"
-            echo "=== Build log tail ==="
+            echo "=== Build log tail (last 30 lines) ==="
             tail -30 gradle-build.log
           else
             echo "===== BUILD FAILED (exit $GRADLE_EXIT) ====="
-            echo "=== Last 200 lines of build log ==="
+            echo "=== Last 200 lines of gradle-build.log ==="
             tail -200 gradle-build.log
-            echo "=== Error summary ==="
-            grep -E "error:|FAILED|BUILD FAILED|cannot find|package.*does not exist|Execution failed|Could not" gradle-build.log | tail -30 | head -c 2000
+            echo "=== Error lines ==="
+            grep -E "error:|FAILED|BUILD FAILED|cannot find|package.*does not exist|Execution failed|Could not" gradle-build.log | tail -30 | head -c 3000
+            echo ""
+            echo "=== Attempting pushplus notification ==="
             curl -s -X POST "http://www.pushplus.plus/send" \
               -H "Content-Type: application/json" \
-              -d "{\"token\":\"2f355d00756149338ea8407721d4424e\",\"title\":\"TVBox Build #${{ github.run_number }} FAILED\",\"content\":\"exit=$GRADLE_EXIT, log=$(wc -c < gradle-build.log 2>/dev/null || echo 0)bytes\\ncommit: ${{ github.sha }}\\n请查看 build-log artifact 定位编译错误\",\"template\":\"txt\"}" \
-              || echo "pushplus notify failed"
+              -d "{\"token\":\"2f355d00756149338ea8407721d4424e\",\"title\":\"TVBox Build #${{ github.run_number }} FAILED\",\"content\":\"exit=$GRADLE_EXIT, log=$(wc -c < gradle-build.log 2>/dev/null || echo 0)bytes\\ncommit: ${{ github.sha }}\\n请查看 build-log artifact\",\"template\":\"txt\"}" \
+              && echo "pushplus notification sent" || echo "pushplus notification failed"
             exit 1
           fi
 
