@@ -54,18 +54,37 @@ jobs:
       - name: Build Success Notify
         if: success()
         run: |
-          curl -s -X POST "http://www.pushplus.plus/send" \
-            -H "Content-Type: application/json" \
-            -d '{"token":"2f355d00756149338ea8407721d4424e","title":"TVBox Build OK","content":"Build #'${{ github.run_number }}' 成功，commit '${{ github.sha }}'。去 Actions 页面下载 APK。","template":"txt"}' \
-            || echo "pushplus notify failed (non-critical)"
+          APK_EXISTS=$(ls ${{ github.workspace }}/apk/TVBox_baolaiwu.apk 2>/dev/null || echo "none")
+          if [ "$APK_EXISTS" != "none" ]; then
+            curl -s -X POST "http://www.pushplus.plus/send" \
+              -H "Content-Type: application/json" \
+              -d '{"token":"2f355d00756149338ea8407721d4424e","title":"TVBox Build OK","content":"Build #'${{ github.run_number }}' 成功，commit '${{ github.sha }}'。去 Actions 页面下载 APK。","template":"txt"}' \
+              || echo "pushplus notify failed (non-critical)"
+          else
+            curl -s -X POST "http://www.pushplus.plus/send" \
+              -H "Content-Type: application/json" \
+              -d '{"token":"2f355d00756149338ea8407721d4424e","title":"TVBox Build 编译成功但无APK","content":"Build #'${{ github.run_number }}' Gradle 编译通过但未找到 APK 文件，请检查 Actions 日志的 Prepare App 步骤。","template":"txt"}' \
+              || echo "pushplus notify failed (non-critical)"
+          fi
 
       - name: Prepare App
         run: |
           mkdir -p ${{ github.workspace }}/apk/
-          for file in `find ~ -name "*.apk" -print`; do
+          # 1) 先搜标准 Gradle 输出目录
+          find ${{ github.workspace }}/app -name "*.apk" -type f -print 2>/dev/null || true
+          # 2) 再搜 home 目录（兜底）
+          find ~ -name "*.apk" -type f -print 2>/dev/null || true
+          # 复制所有找到的 APK
+          for file in $(find ${{ github.workspace }}/app ~ -name "*.apk" -type f 2>/dev/null | sort -u); do
             cp "$file" ${{ github.workspace }}/apk/TVBox_baolaiwu.apk
+            echo "Copied: $file"
           done
+          # 列出结果
           ls -la ${{ github.workspace }}/apk/
+          if [ ! -f ${{ github.workspace }}/apk/TVBox_baolaiwu.apk ]; then
+            echo "ERROR: No APK found in app/ or ~/"
+            exit 1
+          fi
 
       - name: Upload App To Artifact
         uses: actions/upload-artifact@v4
