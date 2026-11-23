@@ -369,8 +369,8 @@ public abstract class BaseActivity extends AppCompatActivity implements CustomAd
     public void changeWallpaperMulti(int count, boolean force) {
         if (!force && globalWp != null) return;
         try {
-            // 随机选一张
-            int idx = java.util.concurrent.ThreadLocalRandom.current().nextInt(count);
+            // 随机选一张（用 java.util.Random 兼容 minSdk 21，ThreadLocalRandom 需 API 26+）
+            int idx = new java.util.Random().nextInt(count);
             String filename = "wp_" + idx;
             File wp = new File(getFilesDir().getAbsolutePath() + "/" + filename);
             if (wp.exists()) {

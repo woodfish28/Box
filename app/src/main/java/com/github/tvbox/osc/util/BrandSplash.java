@@ -11,8 +11,6 @@ import android.view.animation.ScaleAnimation;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
-import androidx.core.view.ViewCompat;
-
 import com.github.tvbox.osc.R;
 
 /**
