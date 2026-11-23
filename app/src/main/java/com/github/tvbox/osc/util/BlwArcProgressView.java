@@ -5,7 +5,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
-import android.graphics.StrokeCap;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -35,14 +34,14 @@ public class BlwArcProgressView extends FrameLayout {
         trackPaint.setStyle(Paint.Style.STROKE);
         trackPaint.setColor(0x66FFFFFF);  // 半透明白色
         trackPaint.setStrokeWidth(8f);
-        trackPaint.setStrokeCap(StrokeCap.ROUND);
+        trackPaint.setStrokeCap(Paint.Cap.ROUND);
 
         // 进度
         progressPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         progressPaint.setStyle(Paint.Style.STROKE);
         progressPaint.setColor(0xFF009874);  // 翠绿
         progressPaint.setStrokeWidth(8f);
-        progressPaint.setStrokeCap(StrokeCap.ROUND);
+        progressPaint.setStrokeCap(Paint.Cap.ROUND);
 
         // 文字
         textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);

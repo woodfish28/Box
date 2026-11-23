@@ -168,12 +168,7 @@ public final class BrandSplash {
     /** 打字机效果：逐字显示 */
     private static void typeWriter(final TextView tv, final String text, final int msPerChar) {
         final int len = text.length();
-        final CharSequence[] buffer = new CharSequence[len + 1];
-        buffer[0] = "";
-        for (int i = 1; i <= len; i++) {
-            buffer[i] = text.substring(0, i);
-        }
-        tv.setText(buffer, 0, buffer.length, 0); // 初始空白
+        tv.setText(""); // 初始空白
         // 用 Handler 逐字推进
         final int[] pos = {0};
         H.post(new Runnable() {
