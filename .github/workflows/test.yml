@@ -29,13 +29,11 @@ jobs:
       - name: Build With Gradle
         run: |
           chmod +x gradlew
-          ./gradlew assembleRelease --build-cache --parallel --daemon --warning-mode all 2>&1 | tee gradle-build.log
-          BUILD_EXIT=${PIPESTATUS[0]}
-          if [ "$BUILD_EXIT" -ne 0 ]; then
-            echo "===== BUILD FAILED (exit $BUILD_EXIT) ====="
-            tail -150 gradle-build.log
+          ./gradlew assembleRelease --build-cache --parallel --daemon --warning-mode all 2>&1 | tee gradle-build.log || {
+            echo "===== BUILD FAILED - last 200 lines ====="
+            tail -200 gradle-build.log
             exit 1
-          fi
+          }
 
       - name: Upload Build Log (always)
         if: always()
