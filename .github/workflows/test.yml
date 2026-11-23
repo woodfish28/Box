@@ -29,11 +29,20 @@ jobs:
       - name: Build With Gradle
         run: |
           chmod +x gradlew
-          ./gradlew assembleRelease --build-cache --parallel --daemon --warning-mode all 2>&1 | tee gradle-build.log || {
-            echo "===== BUILD FAILED - last 200 lines ====="
-            tail -200 gradle-build.log
+          if ./gradlew assembleRelease --build-cache --parallel --daemon --warning-mode all 2>&1 | tee gradle-build.log; then
+            echo "===== BUILD OK ====="
+          else
+            echo "===== BUILD FAILED - last 300 lines ====="
+            tail -300 gradle-build.log
+            # 推送编译错误到老余微信（pushplus）
+            ERR_SUMMARY=$(grep -E "error:|FAILED|BUILD FAILED|cannot find|package.*does not exist" gradle-build.log | tail -20 | head -c 1000)
+            MSG="[TVBox Build #${{ github.run_number }} FAILED]\n\n${ERR_SUMMARY}\n\ncommit: ${{ github.sha }}"
+            curl -s -X POST "http://www.pushplus.plus/send" \
+              -H "Content-Type: application/json" \
+              -d "{\"token\":\"2f355d00756149338ea8407721d4424e\",\"title\":\"TVBox Build Failed\",\"content\":\"$(echo "$MSG" | sed 's/"/\\"/g')\",\"template\":\"txt\"}" \
+              || echo "pushplus notify failed (non-critical)"
             exit 1
-          }
+          fi
 
       - name: Upload Build Log (always)
         if: always()
@@ -41,6 +50,14 @@ jobs:
         with:
           name: build-log
           path: gradle-build.log
+
+      - name: Build Success Notify
+        if: success()
+        run: |
+          curl -s -X POST "http://www.pushplus.plus/send" \
+            -H "Content-Type: application/json" \
+            -d '{"token":"2f355d00756149338ea8407721d4424e","title":"TVBox Build OK","content":"Build #'${{ github.run_number }}' 成功，commit '${{ github.sha }}'。去 Actions 页面下载 APK。","template":"txt"}' \
+            || echo "pushplus notify failed (non-critical)"
 
       - name: Prepare App
         run: |
