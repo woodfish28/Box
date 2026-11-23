@@ -29,7 +29,13 @@ jobs:
       - name: Build With Gradle
         run: |
           chmod +x gradlew
-          echo "=== Starting Gradle build (expect 5-10 min) ==="
+          echo "=== Step 1: Gradle wrapper check ==="
+          ls -la gradlew gradle/wrapper/gradle-wrapper.properties 2>&1
+          echo ""
+          echo "=== Step 2: Gradle version ==="
+          timeout 120 ./gradlew --version 2>&1 || echo "gradlew --version FAILED (exit $?)"
+          echo ""
+          echo "=== Step 3: Building project ==="
           ./gradlew assembleRelease --build-cache --parallel --daemon --warning-mode all > gradle-build.log 2>&1
           GRADLE_EXIT=$?
           echo "=== Gradle exit code: $GRADLE_EXIT ==="
@@ -45,7 +51,7 @@ jobs:
             echo "=== Last 200 lines of gradle-build.log ==="
             tail -200 gradle-build.log
             echo "=== Error lines ==="
-            grep -E "error:|FAILED|BUILD FAILED|cannot find|package.*does not exist|Execution failed|Could not" gradle-build.log | tail -30 | head -c 3000
+            grep -E "error:|FAILED|BUILD FAILED|cannot find|package.*does not exist|Execution failed|Could not|FAILURE|What went wrong" gradle-build.log | tail -30 | head -c 3000
             echo ""
             echo "=== Attempting pushplus notification ==="
             curl -s -X POST "http://www.pushplus.plus/send" \
@@ -57,6 +63,19 @@ jobs:
 
       - name: Upload Build Log (always)
         if: always()
+        run: |
+          if [ -f gradle-build.log ]; then
+            echo "=== Uploading build log ($(( $(wc -c < gradle-build.log) / 1024 )) KB) ==="
+            echo "=== File head (first 5 lines) ==="
+            head -5 gradle-build.log
+            echo "=== File tail (last 5 lines) ==="
+            tail -5 gradle-build.log
+          else
+            echo "WARNING: gradle-build.log not found!"
+          fi
+
+      - name: Upload Build Log Artifact (always)
+        if: always() && hashFiles('gradle-build.log') != ''
         uses: actions/upload-artifact@v4
         with:
           name: build-log
