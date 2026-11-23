@@ -29,7 +29,20 @@ jobs:
       - name: Build With Gradle
         run: |
           chmod +x gradlew
-          ./gradlew assembleRelease --build-cache --parallel --daemon --warning-mode all
+          set -o pipefail
+          ./gradlew assembleRelease --build-cache --parallel --daemon --warning-mode all 2>&1 | tee gradle-build.log
+          if [ "${PIPESTATUS[0]}" -ne 0 ]; then
+            echo "===== BUILD FAILED ====="
+            tail -150 gradle-build.log
+            exit 1
+          fi
+
+      - name: Upload Build Log (always)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: gradle-build.log
 
       - name: Prepare App
         run: |
