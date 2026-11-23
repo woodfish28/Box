@@ -59,6 +59,7 @@ import com.github.tvbox.osc.bean.SourceBean;
 import com.github.tvbox.osc.bean.SubtitleBean;
 import com.github.tvbox.osc.bean.VodInfo;
 import com.github.tvbox.osc.cache.CacheManager;
+import com.github.tvbox.osc.cache.RoomDataManger;
 import com.github.tvbox.osc.event.RefreshEvent;
 import com.github.tvbox.osc.player.EXOmPlayer;
 import com.github.tvbox.osc.player.IjkmPlayer;
@@ -261,6 +262,10 @@ public class PlayActivity extends BaseActivity {
             public void saveProgress(String url, long progress) {
                 if (videoDuration == 0) return;
                 CacheManager.save(MD5.string2MD5(url), progress);
+                // 落库到 vodRecord（按 sourceKey+vodId，与 URL 无关，换播放源续播不丢）
+                if (mVodInfo != null && sourceKey != null) {
+                    RoomDataManger.saveVodProgress(sourceKey, mVodInfo.id, progress, videoDuration);
+                }
             }
 
             @Override
@@ -273,6 +278,11 @@ public class PlayActivity extends BaseActivity {
                 }
                 long skip = st * 1000L;
                 if (CacheManager.getCache(MD5.string2MD5(url)) == null) {
+                    // URL 缓存没有（换了播放源），回落到按 sourceKey+vodId 落库的续播点
+                    if (mVodInfo != null && sourceKey != null) {
+                        long dbProgress = RoomDataManger.getVodProgress(sourceKey, mVodInfo.id);
+                        if (dbProgress > 0 && dbProgress > skip) return dbProgress;
+                    }
                     return skip;
                 }
                 long rec = (long) CacheManager.getCache(MD5.string2MD5(url));

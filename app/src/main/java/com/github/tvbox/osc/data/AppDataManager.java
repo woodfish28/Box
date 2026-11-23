@@ -22,7 +22,7 @@ import java.io.IOException;
  * @since 2020/5/15
  */
 public class AppDataManager {
-    private static final int DB_FILE_VERSION = 3;
+    private static final int DB_FILE_VERSION = 4;
     private static final String DB_NAME = "tvbox";
     private static volatile AppDataManager manager;
     private static AppDataBase dbInstance;
@@ -75,6 +75,19 @@ public class AppDataManager {
             }
         }
     };
+
+    static final Migration MIGRATION_3_4 = new Migration(3, 4) {
+        @Override
+        public void migrate(SupportSQLiteDatabase database) {
+            try {
+                // 续播进度落库：给 vodRecord 补 progress / duration 两列（毫秒）
+                database.execSQL("ALTER TABLE vodRecord ADD COLUMN progress INTEGER NOT NULL DEFAULT 0");
+                database.execSQL("ALTER TABLE vodRecord ADD COLUMN duration INTEGER NOT NULL DEFAULT 0");
+            } catch (SQLiteException e) {
+                e.printStackTrace();
+            }
+        }
+    };
     static String dbPath() {
         return DB_NAME + ".v" + DB_FILE_VERSION + ".db";
     }
@@ -88,6 +101,7 @@ public class AppDataManager {
                     .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
                     .addMigrations(MIGRATION_1_2)
                     .addMigrations(MIGRATION_2_3)
+                    .addMigrations(MIGRATION_3_4)
                     .addCallback(new RoomDatabase.Callback() {
                         @Override
                         public void onCreate(@NonNull SupportSQLiteDatabase db) {

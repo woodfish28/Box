@@ -22,6 +22,11 @@ public class VodRecord implements Serializable {
     @ColumnInfo(name = "sourceKey")
     public String sourceKey;
     public String dataJson;
+    // 续播进度（毫秒）：看到第几分钟。99% 及以上视为看完，不进"继续观看"
+    @ColumnInfo(name = "progress")
+    public long progress = 0;
+    @ColumnInfo(name = "duration")
+    public long duration = 0;
 
     public int getId() {
         return id;

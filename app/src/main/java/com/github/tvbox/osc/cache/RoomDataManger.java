@@ -62,6 +62,46 @@ public class RoomDataManger {
         AppDataManager.get().getVodRecordDao().insert(record);
     }
 
+    /**
+     * 续播进度落库（毫秒）。99% 及以上视为看完，不写 progress/duration，避免"已看完"挂在继续观看。
+     * 按 sourceKey+vodId 定位，与 URL 无关，换播放源进度不丢。
+     */
+    public static void saveVodProgress(String sourceKey, String vodId, long progressMs, long durationMs) {
+        try {
+            if (sourceKey == null || vodId == null || durationMs <= 0 || progressMs <= 0) return;
+            // 99% 规则：快看完了就不记续播点
+            if (progressMs * 100L >= durationMs * 99L) {
+                progressMs = 0;
+            }
+            VodRecord record = AppDataManager.get().getVodRecordDao().getVodRecord(sourceKey, vodId);
+            if (record == null) {
+                record = new VodRecord();
+                record.sourceKey = sourceKey;
+                record.vodId = vodId;
+                record.updateTime = System.currentTimeMillis();
+            }
+            record.progress = progressMs;
+            record.duration = durationMs;
+            record.updateTime = System.currentTimeMillis();
+            AppDataManager.get().getVodRecordDao().insert(record);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /** 读取某片某源的续播点（毫秒）；无则 0。 */
+    public static long getVodProgress(String sourceKey, String vodId) {
+        try {
+            VodRecord record = AppDataManager.get().getVodRecordDao().getVodRecord(sourceKey, vodId);
+            if (record != null && record.progress > 0 && record.duration > record.progress) {
+                return record.progress;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
     public static VodInfo getVodInfo(String sourceKey, String vodId) {
         VodRecord record = AppDataManager.get().getVodRecordDao().getVodRecord(sourceKey, vodId);
         try {
