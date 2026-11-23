@@ -29,18 +29,27 @@ jobs:
       - name: Build With Gradle
         run: |
           chmod +x gradlew
-          if ./gradlew assembleRelease --build-cache --parallel --daemon --warning-mode all 2>&1 | tee gradle-build.log; then
-            echo "===== BUILD OK ====="
+          echo "Starting Gradle build, this may take 5-10 minutes..."
+          ./gradlew assembleRelease --build-cache --parallel --daemon --warning-mode all > gradle-build.log 2>&1
+          GRADLE_EXIT=$?
+          echo "Gradle exit code: $GRADLE_EXIT"
+          echo "Gradle log size: $(wc -c < gradle-build.log 2>/dev/null || echo 0) bytes"
+          if [ $GRADLE_EXIT -eq 0 ]; then
+            echo "===== BUILD OK (exit 0) ====="
+            echo "=== APK location check ==="
+            find app/build/outputs/apk -name "*.apk" -type f -print 2>/dev/null || echo "No APK in expected location"
+            echo "=== Build log tail ==="
+            tail -30 gradle-build.log
           else
-            echo "===== BUILD FAILED - last 300 lines ====="
-            tail -300 gradle-build.log
-            # 推送编译错误到老余微信（pushplus）
-            ERR_SUMMARY=$(grep -E "error:|FAILED|BUILD FAILED|cannot find|package.*does not exist" gradle-build.log | tail -20 | head -c 1000)
-            MSG="[TVBox Build #${{ github.run_number }} FAILED]\n\n${ERR_SUMMARY}\n\ncommit: ${{ github.sha }}"
+            echo "===== BUILD FAILED (exit $GRADLE_EXIT) ====="
+            echo "=== Last 200 lines of build log ==="
+            tail -200 gradle-build.log
+            echo "=== Error summary ==="
+            grep -E "error:|FAILED|BUILD FAILED|cannot find|package.*does not exist|Execution failed|Could not" gradle-build.log | tail -30 | head -c 2000
             curl -s -X POST "http://www.pushplus.plus/send" \
               -H "Content-Type: application/json" \
-              -d "{\"token\":\"2f355d00756149338ea8407721d4424e\",\"title\":\"TVBox Build Failed\",\"content\":\"$(echo "$MSG" | sed 's/"/\\"/g')\",\"template\":\"txt\"}" \
-              || echo "pushplus notify failed (non-critical)"
+              -d "{\"token\":\"2f355d00756149338ea8407721d4424e\",\"title\":\"TVBox Build #${{ github.run_number }} FAILED\",\"content\":\"exit=$GRADLE_EXIT, log=$(wc -c < gradle-build.log 2>/dev/null || echo 0)bytes\\ncommit: ${{ github.sha }}\\n请查看 build-log artifact 定位编译错误\",\"template\":\"txt\"}" \
+              || echo "pushplus notify failed"
             exit 1
           fi
 
@@ -51,38 +60,26 @@ jobs:
           name: build-log
           path: gradle-build.log
 
-      - name: Build Success Notify
-        if: success()
-        run: |
-          APK_EXISTS=$(ls ${{ github.workspace }}/apk/TVBox_baolaiwu.apk 2>/dev/null || echo "none")
-          if [ "$APK_EXISTS" != "none" ]; then
-            curl -s -X POST "http://www.pushplus.plus/send" \
-              -H "Content-Type: application/json" \
-              -d '{"token":"2f355d00756149338ea8407721d4424e","title":"TVBox Build OK","content":"Build #'${{ github.run_number }}' 成功，commit '${{ github.sha }}'。去 Actions 页面下载 APK。","template":"txt"}' \
-              || echo "pushplus notify failed (non-critical)"
-          else
-            curl -s -X POST "http://www.pushplus.plus/send" \
-              -H "Content-Type: application/json" \
-              -d '{"token":"2f355d00756149338ea8407721d4424e","title":"TVBox Build 编译成功但无APK","content":"Build #'${{ github.run_number }}' Gradle 编译通过但未找到 APK 文件，请检查 Actions 日志的 Prepare App 步骤。","template":"txt"}' \
-              || echo "pushplus notify failed (non-critical)"
-          fi
-
       - name: Prepare App
         run: |
           mkdir -p ${{ github.workspace }}/apk/
-          # 1) 先搜标准 Gradle 输出目录
-          find ${{ github.workspace }}/app -name "*.apk" -type f -print 2>/dev/null || true
-          # 2) 再搜 home 目录（兜底）
-          find ~ -name "*.apk" -type f -print 2>/dev/null || true
-          # 复制所有找到的 APK
-          for file in $(find ${{ github.workspace }}/app ~ -name "*.apk" -type f 2>/dev/null | sort -u); do
+          echo "=== APK search (explicit gradle output) ==="
+          find app/build/outputs/apk -name "*.apk" -type f -print 2>/dev/null
+          for file in $(find app/build/outputs/apk -name "*.apk" -type f 2>/dev/null | sort -u); do
             cp "$file" ${{ github.workspace }}/apk/TVBox_baolaiwu.apk
             echo "Copied: $file"
           done
-          # 列出结果
+          if [ ! -f ${{ github.workspace }}/apk/TVBox_baolaiwu.apk ]; then
+            echo "FALLBACK: APK not in gradle output, searching entire workspace..."
+            find . -name "*.apk" -type f -print 2>/dev/null
+            for file in $(find . -name "*.apk" -type f 2>/dev/null | sort -u); do
+              cp "$file" ${{ github.workspace }}/apk/TVBox_baolaiwu.apk
+              echo "Copied (fallback): $file"
+            done
+          fi
           ls -la ${{ github.workspace }}/apk/
           if [ ! -f ${{ github.workspace }}/apk/TVBox_baolaiwu.apk ]; then
-            echo "ERROR: No APK found in app/ or ~/"
+            echo "ERROR: No APK found"
             exit 1
           fi
 
@@ -92,3 +89,11 @@ jobs:
           name: TVBox_baolaiwu
           path: ${{ github.workspace }}/apk/*.apk
           if-no-files-found: error
+
+      - name: Build Result Notify
+        if: success()
+        run: |
+          curl -s -X POST "http://www.pushplus.plus/send" \
+            -H "Content-Type: application/json" \
+            -d "{\"token\":\"2f355d00756149338ea8407721d4424e\",\"title\":\"TVBox Build #${{ github.run_number }} OK\",\"content\":\"Build #${{ github.run_number }} 成功，commit ${{ github.sha }}。去 Actions 页面下载 APK。\",\"template\":\"txt\"}" \
+            || echo "pushplus notify failed"
