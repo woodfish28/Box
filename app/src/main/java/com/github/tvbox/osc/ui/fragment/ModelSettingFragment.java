@@ -621,24 +621,51 @@ public class ModelSettingFragment extends BaseLazyFragment {
             @Override
             public void onClick(View v) {
                 FastClickCheckUtil.check(v);
-                if (!ApiConfig.get().wallpaper.isEmpty())
-                    Toast.makeText(mContext, getString(R.string.mn_wall_load), Toast.LENGTH_SHORT).show();
-                OkGo.<File>get(ApiConfig.get().wallpaper).execute(new FileCallback(requireActivity().getFilesDir().getAbsolutePath(), "wp") {
-                    @Override
-                    public void onSuccess(Response<File> response) {
-                        ((BaseActivity) requireActivity()).changeWallpaper(true);
+                String wpUrl = ApiConfig.get().wallpaper;
+                if (wpUrl.isEmpty()) return;
+                Toast.makeText(mContext, getString(R.string.mn_wall_load), Toast.LENGTH_SHORT).show();
+                // 支持逗号分隔的多张壁纸轮播：url1,url2,url3 → wp_0, wp_1, wp_2
+                String[] urls = wpUrl.split(",");
+                if (urls.length == 1) {
+                    // 单张：原有逻辑
+                    OkGo.<File>get(wpUrl.trim()).execute(new FileCallback(requireActivity().getFilesDir().getAbsolutePath(), "wp") {
+                        @Override
+                        public void onSuccess(Response<File> response) {
+                            ((BaseActivity) requireActivity()).changeWallpaper(true);
+                        }
+                        @Override
+                        public void onError(Response<File> response) {
+                            super.onError(response);
+                        }
+                        @Override
+                        public void downloadProgress(Progress progress) {
+                            super.downloadProgress(progress);
+                        }
+                    });
+                } else {
+                    // 多张：逐张下载到 wp_0, wp_1, ... 然后随机选一张
+                    int idx = 0;
+                    for (String url : urls) {
+                        final int i = idx++;
+                        String trimmed = url.trim();
+                        if (trimmed.isEmpty()) continue;
+                        String filename = "wp_" + i;
+                        OkGo.<File>get(trimmed).execute(new FileCallback(requireActivity().getFilesDir().getAbsolutePath(), filename) {
+                            @Override
+                            public void onSuccess(Response<File> response) {
+                                // 最后一张下完才切换壁纸
+                                if (i == urls.length - 1) {
+                                    ((BaseActivity) requireActivity()).changeWallpaperMulti(
+                                            urls.length, true);
+                                }
+                            }
+                            @Override
+                            public void onError(Response<File> response) {
+                                super.onError(response);
+                            }
+                        });
                     }
-
-                    @Override
-                    public void onError(Response<File> response) {
-                        super.onError(response);
-                    }
-
-                    @Override
-                    public void downloadProgress(Progress progress) {
-                        super.downloadProgress(progress);
-                    }
-                });
+                }
             }
         });
         // Restore Default Wallpaper from system -------------------------

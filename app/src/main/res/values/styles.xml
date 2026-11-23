@@ -83,6 +83,16 @@
         <item name="color_theme_40">#66FD9BDB</item>
         <item name="color_theme_dark_70">#B3B06B98</item>
     </style>
+    <!-- 保来屋定制：翠绿主题（#009874 系，与壁纸/品牌色统一） -->
+    <style name="BLWTheme" parent="AppTheme.NoActionBar">
+        <item name="color_theme">#009874</item>
+        <item name="color_theme_80">#CC009874</item>
+        <item name="color_theme_70">#B3009874</item>
+        <item name="color_theme_60">#99009874</item>
+        <item name="color_theme_50">#80009874</item>
+        <item name="color_theme_40">#66009874</item>
+        <item name="color_theme_dark_70">#B3004D3A</item>
+    </style>
 
     <!-- 自定义dialog样式 -->
     <style name="CustomDialogStyle" parent="@android:style/Theme.Dialog">

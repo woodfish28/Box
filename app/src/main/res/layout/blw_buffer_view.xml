@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  保来屋缓冲视图：圆形 logo + 半透明遮罩 + 时钟弧形进度
+  BlwArcProgressView 自绘弧形进度条（12 点顺时针扫描）
+-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
@@ -7,20 +11,21 @@
     android:tag="blw_buffer_view"
     android:visibility="gone">
 
-    <FrameLayout
+    <com.github.tvbox.osc.util.BlwArcProgressView
+        android:id="@+id/blw_buffer_arc"
         android:layout_width="160dp"
-        android:layout_height="160dp"
-        android:background="@drawable/blw_buffer_bg">
+        android:layout_height="160dp">
 
         <ImageView
             android:id="@+id/blw_buffer_logo"
-            android:layout_width="120dp"
-            android:layout_height="120dp"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
             android:layout_gravity="center"
             android:adjustViewBounds="true"
             android:scaleType="fitCenter"
             android:src="@drawable/blw_logo" />
-    </FrameLayout>
+
+    </com.github.tvbox.osc.util.BlwArcProgressView>
 
     <TextView
         android:id="@+id/blw_buffer_pct"

@@ -81,20 +81,23 @@ public abstract class BaseActivity extends AppCompatActivity implements CustomAd
         }
 
         // takagen99 : Set Theme Color
-        if (Hawk.get(HawkConfig.THEME_SELECT, 0) == 0) {
+        // 保来屋定制：默认 7=BLWTheme（翠绿），可通过设置切回 0-6
+        if (Hawk.get(HawkConfig.THEME_SELECT, 7) == 0) {
             setTheme(R.style.NetfxTheme);
-        } else if (Hawk.get(HawkConfig.THEME_SELECT, 0) == 1) {
+        } else if (Hawk.get(HawkConfig.THEME_SELECT, 7) == 1) {
             setTheme(R.style.DoraeTheme);
-        } else if (Hawk.get(HawkConfig.THEME_SELECT, 0) == 2) {
+        } else if (Hawk.get(HawkConfig.THEME_SELECT, 7) == 2) {
             setTheme(R.style.PepsiTheme);
-        } else if (Hawk.get(HawkConfig.THEME_SELECT, 0) == 3) {
+        } else if (Hawk.get(HawkConfig.THEME_SELECT, 7) == 3) {
             setTheme(R.style.NarutoTheme);
-        } else if (Hawk.get(HawkConfig.THEME_SELECT, 0) == 4) {
+        } else if (Hawk.get(HawkConfig.THEME_SELECT, 7) == 4) {
             setTheme(R.style.MinionTheme);
-        } else if (Hawk.get(HawkConfig.THEME_SELECT, 0) == 5) {
+        } else if (Hawk.get(HawkConfig.THEME_SELECT, 7) == 5) {
             setTheme(R.style.YagamiTheme);
-        } else {
+        } else if (Hawk.get(HawkConfig.THEME_SELECT, 7) == 6) {
             setTheme(R.style.SakuraTheme);
+        } else {
+            setTheme(R.style.BLWTheme); // 默认翠绿
         }
 
         super.onCreate(savedInstanceState);
@@ -343,6 +346,55 @@ public abstract class BaseActivity extends AppCompatActivity implements CustomAd
                 globalWp = new BitmapDrawable(BitmapFactory.decodeFile(wp.getAbsolutePath(), opts));
             } else {
                 globalWp = null;
+            }
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
+            globalWp = null;
+        }
+        if (globalWp != null) {
+            getWindow().setBackgroundDrawable(globalWp);
+        } else {
+            getWindow().setBackgroundDrawableResource(R.drawable.app_bg);
+        }
+    }
+
+    /**
+     * 保来屋定制：多张壁纸轮播。
+     * 从 wp_0 ~ wp_{count-1} 中随机选一张设成背景。
+     * 每次启动 App 随机切换，实现"轮播"效果。
+     *
+     * @param count 壁纸文件数量（wp_0 ~ wp_{count-1}）
+     * @param force 是否强制刷新
+     */
+    public void changeWallpaperMulti(int count, boolean force) {
+        if (!force && globalWp != null) return;
+        try {
+            // 随机选一张
+            int idx = java.util.concurrent.ThreadLocalRandom.current().nextInt(count);
+            String filename = "wp_" + idx;
+            File wp = new File(getFilesDir().getAbsolutePath() + "/" + filename);
+            if (wp.exists()) {
+                BitmapFactory.Options opts = new BitmapFactory.Options();
+                opts.inJustDecodeBounds = true;
+                BitmapFactory.decodeFile(wp.getAbsolutePath(), opts);
+                int imageHeight = opts.outHeight;
+                int imageWidth = opts.outWidth;
+                int picHeight = 720;
+                int picWidth = 1080;
+                int scaleX = imageWidth / picWidth;
+                int scaleY = imageHeight / picHeight;
+                int scale = Math.max(Math.max(scaleX, scaleY), 1);
+                opts.inJustDecodeBounds = false;
+                opts.inSampleSize = scale;
+                globalWp = new BitmapDrawable(BitmapFactory.decodeFile(wp.getAbsolutePath(), opts));
+            } else {
+                // 回退到 wp（单张）
+                File wpFallback = new File(getFilesDir().getAbsolutePath() + "/wp");
+                if (wpFallback.exists()) {
+                    globalWp = new BitmapDrawable(BitmapFactory.decodeFile(wpFallback.getAbsolutePath()));
+                } else {
+                    globalWp = null;
+                }
             }
         } catch (Throwable throwable) {
             throwable.printStackTrace();

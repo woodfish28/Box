@@ -1,109 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  保来屋片头动画 · 电影制片厂风格
+  fullVersion=true  → 5.8s 完整版（光点→logo→打字机slogan→品牌名→域名→淡出）
+  fullVersion=false → 3.5s 精简版（logo缩放→品牌名→淡出）
+-->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#F20B101A">
 
     <LinearLayout
-        android:id="@+id/blw_splash_card"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:background="@drawable/blw_splash_card"
         android:gravity="center_horizontal"
         android:orientation="vertical">
 
-        <ImageView
+        <!-- logo 容器 -->
+        <FrameLayout
+            android:id="@+id/blw_splash_logo_box"
             android:layout_width="180dp"
             android:layout_height="180dp"
-            android:adjustViewBounds="true"
-            android:contentDescription="保来屋logo"
-            android:scaleType="fitCenter"
-            android:src="@drawable/blw_logo" />
+            android:visibility="invisible">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="保来屋"
-            android:textColor="#0B3D5C"
-            android:textSize="30sp"
-            android:textStyle="bold" />
+            <ImageView
+                android:id="@+id/blw_splash_logo"
+                android:layout_width="180dp"
+                android:layout_height="180dp"
+                android:layout_gravity="center"
+                android:adjustViewBounds="true"
+                android:contentDescription="保来屋logo"
+                android:scaleType="fitCenter"
+                android:src="@drawable/blw_logo" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:text="用专业为家撑伞"
-            android:textColor="#009874"
-            android:textSize="20sp" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="24dp"
-            android:layout_marginBottom="20dp"
-            android:background="#E0E8E5" />
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="horizontal">
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
-                android:orientation="vertical">
-
-                <ImageView
-                    android:layout_width="120dp"
-                    android:layout_height="120dp"
-                    android:scaleType="fitCenter"
-                    android:src="@drawable/blw_qr_wechat" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="加微信 · 余仁哲"
-                    android:textColor="#0B3D5C"
-                    android:textSize="15sp" />
-            </LinearLayout>
-
+            <!-- 光点（完整版专用） -->
             <View
-                android:layout_width="32dp"
-                android:layout_height="1dp" />
+                android:id="@+id/blw_splash_glow"
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:layout_gravity="center"
+                android:background="@drawable/blw_splash_glow_dot"
+                android:visibility="gone" />
+        </FrameLayout>
 
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
-                android:orientation="vertical">
-
-                <ImageView
-                    android:layout_width="120dp"
-                    android:layout_height="120dp"
-                    android:scaleType="fitCenter"
-                    android:src="@drawable/blw_qr_gzh" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="关注公众号 · 保来屋"
-                    android:textColor="#0B3D5C"
-                    android:textSize="15sp" />
-            </LinearLayout>
-        </LinearLayout>
-
+        <!-- slogan 打字机（完整版专用） -->
         <TextView
+            android:id="@+id/blw_splash_slogan"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="18dp"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:maxLines="1"
+            android:text=""
+            android:textColor="#7EDCC5"
+            android:textSize="22sp"
+            android:visibility="gone" />
+
+        <!-- 品牌名 -->
+        <TextView
+            android:id="@+id/blw_splash_brand"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:alpha="0"
+            android:text="保来屋"
+            android:textColor="#FFFFFF"
+            android:textSize="34sp"
+            android:textStyle="bold" />
+
+        <!-- 域名（极淡） -->
+        <TextView
+            android:id="@+id/blw_splash_url"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:alpha="0"
             android:text="baolaiwu.cn"
             android:textColor="#009874"
-            android:textSize="16sp" />
+            android:textSize="14sp" />
     </LinearLayout>
+
 </FrameLayout>
