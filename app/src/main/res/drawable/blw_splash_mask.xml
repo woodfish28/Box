@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 保来屋片头遮罩：透明高亮（浅白雾 + 中心翠绿微晕），取代旧近全黑 #F20B101A -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <gradient
+        android:type="radial"
+        android:gradientRadius="420dp"
+        android:startColor="#55FFFFFF"
+        android:centerColor="#33FFFFFF"
+        android:endColor="#1A009874" />
+</shape>
