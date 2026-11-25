@@ -1,6 +1,9 @@
 # windows thumbnail cache
 Thumbs.db
 
+# 出图临时素材目录（Agnes/本地裁图产物，勿入库）
+_logo_out/
+
 # Built application files
 *.apk
 *.aar
