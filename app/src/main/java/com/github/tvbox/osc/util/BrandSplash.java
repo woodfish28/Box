@@ -10,6 +10,7 @@ import android.view.animation.Animation;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.ScaleAnimation;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.github.tvbox.osc.R;
@@ -47,9 +48,13 @@ public final class BrandSplash {
         final View logo     = splash.findViewById(R.id.blw_splash_logo);
         final BlwClockRevealLogo reveal = (BlwClockRevealLogo) splash.findViewById(R.id.blw_splash_reveal);
         final View glow     = splash.findViewById(R.id.blw_splash_glow);
-        final TextView slogan = splash.findViewById(R.id.blw_splash_slogan);
+        final ImageView slogan = (ImageView) splash.findViewById(R.id.blw_splash_slogan);
         final TextView brand  = splash.findViewById(R.id.blw_splash_brand);
         final TextView url    = splash.findViewById(R.id.blw_splash_url);
+        final ImageView bg    = (ImageView) splash.findViewById(R.id.blw_splash_bg);
+
+        // 片头 logo 用 3D 水晶版（时钟揭示 + slogan 均为水晶质感）
+        if (reveal != null) reveal.setLogoRes(R.drawable.blw_logo_crystal);
 
         // 精简版隐藏打字机 slogan 和光点
         if (!full) {
@@ -62,6 +67,15 @@ public final class BrandSplash {
         fadeIn.setDuration(450);
         fadeIn.setFillAfter(true);
         splash.startAnimation(fadeIn);
+
+        // ===== 0.2s → 影院背景缓慢浮现（1.6s，制造"电影开场黑场亮起"的质感） =====
+        if (bg != null) {
+            bg.setVisibility(View.VISIBLE);
+            AlphaAnimation bgIn = new AlphaAnimation(0f, 1f);
+            bgIn.setDuration(1600);
+            bgIn.setFillAfter(true);
+            bg.startAnimation(bgIn);
+        }
 
         if (full) {
             // ===== 5.8s 完整版时序 =====
@@ -91,12 +105,15 @@ public final class BrandSplash {
                 }
             }, 800);
 
-            // 2.0s → 打字机 slogan（1.5s，逐字显现）
+            // 2.0s → 水晶 slogan 字标浮现（玻璃字淡入 + 轻微上浮，900ms）
             H.postDelayed(new Runnable() {
                 @Override public void run() {
                     if (slogan != null) {
                         slogan.setVisibility(View.VISIBLE);
-                        typeWriter(slogan, SLOGAN, 100); // 每字 100ms
+                        slogan.setAlpha(0f);
+                        slogan.setTranslationY(24f);
+                        slogan.animate().alpha(1f).translationY(0f).setDuration(900)
+                                .setInterpolator(new android.view.animation.DecelerateInterpolator()).start();
                     }
                 }
             }, 2000);

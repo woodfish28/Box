@@ -9,6 +9,16 @@
     android:layout_height="match_parent"
     android:background="@drawable/blw_splash_mask">
 
+    <!-- 翡翠绿影院背景（片头垫底，全屏铺） -->
+    <ImageView
+        android:id="@+id/blw_splash_bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0"
+        android:contentDescription="片头背景"
+        android:scaleType="centerCrop"
+        android:src="@drawable/blw_splash_bg_cinema" />
+
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -31,7 +41,7 @@
                 android:adjustViewBounds="true"
                 android:contentDescription="保来屋logo"
                 android:scaleType="fitCenter"
-                android:src="@drawable/blw_logo" />
+                android:src="@drawable/blw_logo_crystal" />
 
             <!-- 时钟揭示层：叠在 logo 上，指针扫过处 logo 由 50% 透明变不透明 -->
             <com.github.tvbox.osc.util.BlwClockRevealLogo
@@ -50,18 +60,18 @@
                 android:visibility="gone" />
         </FrameLayout>
 
-        <!-- slogan 打字机（完整版专用） -->
-        <TextView
+        <!-- slogan 水晶字标（完整版专用，Agnes 3D 水晶玻璃字 + 内部高光，透明底） -->
+        <ImageView
             android:id="@+id/blw_splash_slogan"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
-            android:ellipsize="end"
-            android:gravity="center"
-            android:maxLines="1"
-            android:text=""
-            android:textColor="#7EDCC5"
-            android:textSize="22sp"
+            android:layout_marginTop="22dp"
+            android:adjustViewBounds="true"
+            android:alpha="0"
+            android:contentDescription="品牌slogan"
+            android:maxWidth="620dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/blw_slogan_crystal"
             android:visibility="gone" />
 
         <!-- 品牌名 -->

@@ -65,6 +65,19 @@ public class BlwClockRevealLogo extends View {
         setWillNotDraw(false);
     }
 
+    /** 运行时切换 logo 位图（如 3D 水晶版）。传 null 或解码失败保持原 logo。
+     *  须在任何 draw 之前调用（构造后立即调用即可，片头是 Activity 生命周期内一次性 View）。 */
+    public void setLogoRes(int resId) {
+        try {
+            Bitmap b = android.graphics.BitmapFactory.decodeResource(getResources(), resId);
+            if (b != null) {
+                logo = Bitmap.createScaledBitmap(b, sizePx, sizePx, true);
+                invalidate();
+            }
+        } catch (Throwable ignored) {
+        }
+    }
+
     /** 设置指针角度（0~360，12 点=0，顺时针）。*/
     public void setSweep(float degrees) {
         this.sweep = Math.max(0f, Math.min(360f, degrees));
