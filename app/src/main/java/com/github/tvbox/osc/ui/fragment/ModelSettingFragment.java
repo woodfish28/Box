@@ -124,16 +124,16 @@ public class ModelSettingFragment extends BaseLazyFragment {
         tvScale = findViewById(R.id.tvScaleType);
         tvScale.setText(PlayerHelper.getScaleName(Hawk.get(HawkConfig.PLAY_SCALE, 0)));
         tvPlay = findViewById(R.id.tvPlay);
-        tvPlay.setText(PlayerHelper.getPlayerName(Hawk.get(HawkConfig.PLAY_TYPE, 0)));
+        tvPlay.setText(PlayerHelper.getPlayerName(Hawk.get(HawkConfig.PLAY_TYPE, 1)));
         tvVideoPurifyText = findViewById(R.id.tvVideoPurifyText);
         tvVideoPurifyText.setText(Hawk.get(HawkConfig.VIDEO_PURIFY, true) ? "开启" : "关闭");
         // System Section
         tvLocale = findViewById(R.id.tvLocale);
         tvLocale.setText(getLocaleView(Hawk.get(HawkConfig.HOME_LOCALE, 0)));
         tvTheme = findViewById(R.id.tvTheme);
-        tvTheme.setText(getThemeView(Hawk.get(HawkConfig.THEME_SELECT, 0)));
+        tvTheme.setText(getThemeView(Hawk.get(HawkConfig.THEME_SELECT, 7)));
         tvRender = findViewById(R.id.tvRenderType);
-        tvRender.setText(PlayerHelper.getRenderName(Hawk.get(HawkConfig.PLAY_RENDER, 0)));
+        tvRender.setText(PlayerHelper.getRenderName(Hawk.get(HawkConfig.PLAY_RENDER, 1)));
         tvParseWebView = findViewById(R.id.tvParseWebView);
         tvParseWebView.setText(Hawk.get(HawkConfig.PARSE_WEBVIEW, true) ? "系统自带" : "XWalkView");
         tvSearchView = findViewById(R.id.tvSearchView);
@@ -443,7 +443,7 @@ public class ModelSettingFragment extends BaseLazyFragment {
             @Override
             public void onClick(View v) {
                 FastClickCheckUtil.check(v);
-                int defaultPos = Hawk.get(HawkConfig.PLAY_TYPE, 0);
+                int defaultPos = Hawk.get(HawkConfig.PLAY_TYPE, 1);
                 ArrayList<Integer> players = new ArrayList<>();
                 players.add(0);
                 players.add(1);
@@ -529,7 +529,7 @@ public class ModelSettingFragment extends BaseLazyFragment {
             @Override
             public void onClick(View v) {
                 FastClickCheckUtil.check(v);
-                int defaultPos = Hawk.get(HawkConfig.PLAY_RENDER, 0);
+                int defaultPos = Hawk.get(HawkConfig.PLAY_RENDER, 1);
                 ArrayList<Integer> renders = new ArrayList<>();
                 renders.add(0);
                 renders.add(1);
@@ -771,12 +771,12 @@ public class ModelSettingFragment extends BaseLazyFragment {
         });
         // Select App Theme Color -------------------------------------
         findViewById(R.id.llTheme).setOnClickListener(new View.OnClickListener() {
-            private final int chkTheme = Hawk.get(HawkConfig.THEME_SELECT, 0);
+            private final int chkTheme = Hawk.get(HawkConfig.THEME_SELECT, 7);
 
             @Override
             public void onClick(View v) {
                 FastClickCheckUtil.check(v);
-                int defaultPos = Hawk.get(HawkConfig.THEME_SELECT, 0);
+                int defaultPos = Hawk.get(HawkConfig.THEME_SELECT, 7);
                 ArrayList<Integer> types = new ArrayList<>();
                 types.add(0);
                 types.add(1);

@@ -1,6 +1,7 @@
 package com.github.tvbox.osc.util;
 
 import android.app.Activity;
+import android.animation.ValueAnimator;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
@@ -44,6 +45,7 @@ public final class BrandSplash {
 
         final View logoBox  = splash.findViewById(R.id.blw_splash_logo_box);
         final View logo     = splash.findViewById(R.id.blw_splash_logo);
+        final BlwClockRevealLogo reveal = (BlwClockRevealLogo) splash.findViewById(R.id.blw_splash_reveal);
         final View glow     = splash.findViewById(R.id.blw_splash_glow);
         final TextView slogan = splash.findViewById(R.id.blw_splash_slogan);
         final TextView brand  = splash.findViewById(R.id.blw_splash_brand);
@@ -72,7 +74,7 @@ public final class BrandSplash {
                 glow.startAnimation(glowPulse);
             }
 
-            // 0.8s → logo 从光点中扩展（缩放 0.3→1.0，600ms）
+            // 0.8s → logo 从光点中扩展（缩放 0.3→1.0，600ms）+ 同时启动时钟指针揭示（1.2s 扫满 360°）
             H.postDelayed(new Runnable() {
                 @Override public void run() {
                     if (glow != null) glow.setVisibility(View.GONE);
@@ -84,6 +86,8 @@ public final class BrandSplash {
                     scale.setFillBefore(true);
                     scale.setFillAfter(true);
                     logoBox.startAnimation(scale);
+                    if (logo != null) logo.setVisibility(View.INVISIBLE); // 改用 reveal 层重绘 logo，避免双绘
+                    startClockReveal(reveal, 1200);
                 }
             }, 800);
 
@@ -130,7 +134,7 @@ public final class BrandSplash {
 
         } else {
             // ===== 3.5s 精简版时序 =====
-            // 0.5s → logo 缩放显现（500ms）
+            // 0.5s → logo 缩放显现（500ms）+ 启动时钟指针揭示（1.0s 扫满 360°）
             H.postDelayed(new Runnable() {
                 @Override public void run() {
                     if (logoBox != null) logoBox.setVisibility(View.VISIBLE);
@@ -141,6 +145,8 @@ public final class BrandSplash {
                     scale.setFillBefore(true);
                     scale.setFillAfter(true);
                     logoBox.startAnimation(scale);
+                    if (logo != null) logo.setVisibility(View.INVISIBLE); // 改用 reveal 层重绘 logo，避免双绘
+                    startClockReveal(reveal, 1000);
                 }
             }, 500);
 
@@ -163,6 +169,26 @@ public final class BrandSplash {
                 }
             }, 2500);
         }
+    }
+
+    /** 时钟指针揭示：指针从 12 点顺时针扫 0→360°，扫过处 logo 由 50% 透明变不透明。
+     *  动画结束后定格为完全不透明。reveal 自身已重绘 logo，静态 logo ImageView 由调用方隐藏。 */
+    private static void startClockReveal(final BlwClockRevealLogo reveal, long durationMs) {
+        if (reveal == null) return;
+        ValueAnimator va = ValueAnimator.ofFloat(0f, 360f);
+        va.setDuration(durationMs);
+        va.setInterpolator(new DecelerateInterpolator());
+        va.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override public void onAnimationUpdate(ValueAnimator a) {
+                reveal.setSweep((float) a.getAnimatedValue());
+            }
+        });
+        va.start();
+        H.postDelayed(new Runnable() {
+            @Override public void run() {
+                reveal.finishReveal();
+            }
+        }, durationMs + 50);
     }
 
     /** 打字机效果：逐字显示 */
